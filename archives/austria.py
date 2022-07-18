@@ -38,7 +38,7 @@ class FindBuch(Collection):
         try:
             self.results_url = url
             self.results_count = 0
-            tag = soup.select_one('#findbuch-search .ce_metamodel_list p strong')
+            tag = soup.select_one('#findbuch-search .mod_metamodel_list p strong')
             if tag:
                 try:
                     self.results_count = int(tag.text.split()[0])
