@@ -13,7 +13,7 @@ from archives.MemorialSHOAH import MemorialSHOAH
 import sys
 import json
 import logging
-from google.cloud import translate
+from google.cloud import translate_v2 as translate
 
 
 gclient = translate.Client()
