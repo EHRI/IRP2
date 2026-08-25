@@ -13,22 +13,6 @@ from archives.MemorialSHOAH import MemorialSHOAH
 import sys
 import json
 import logging
-from google.cloud import translate_v2 as translate
-
-
-gclient = translate.Client()
-
-
-def get_translations(keywords, languages):
-    result = []
-    if len(languages) > 0:
-        for lang in languages:
-            try:
-                reply = gclient.translate(keywords, target_language=lang)
-                result.append(str(reply['translatedText']))
-            except Exception as e:  # NotTranslated
-                logging.warn(e)
-    return result
 
 
 def search(**kwargs):
