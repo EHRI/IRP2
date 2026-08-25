@@ -10,7 +10,6 @@ from flask_extended import Flask
 from flask import jsonify, request, session, g, redirect, url_for, render_template, flash, Response
 from archives.core import searchAll
 from archives.core import search as mysearch
-from archives.core import get_translations
 from lxml import etree
 from archives import belgium
 from contextlib import closing
@@ -202,11 +201,6 @@ def search():
 @app.route('/searchAJAX', methods=['POST'])
 def searchAJAX():
     inputs = request.form
-    try:
-        languages = inputs.getlist('languages')
-    except Exception as e:
-        logging.exception(e)
-        pass
     logging.debug("/search with inputs:\n{0}".format(json.dumps(inputs)))
     session["inputs"] = inputs
     myargs = {}
@@ -220,40 +214,16 @@ def searchAJAX():
     for key, value in myargs.items():
         if len(value) == 0 or str(value).strip() == '':
             myargs[key] = None
-    if len(languages) > 0 and myargs['keywords'] is not None:
-        translated_terms = get_translations(myargs['keywords'], languages)
-        myargs['translated_terms'] = translated_terms
     result = mysearch(**myargs)
     return jsonify(result)
 
 
-@app.route('/translate', methods=['POST'])
-def translate():
-    mylanguage = request.form.get('language')
-    text = request.form.get('text')
-    logging.info("/translate requesting '{0}' into {1}".format(text, mylanguage))
-    mytranslation = get_translations(text, [mylanguage])
-    logging.info("/translate got back '{0}'".format(mytranslation))
-    return Response(mytranslation, mimetype='text/plain')
-
-
 @app.route('/searchAll', methods=['GET', 'POST'])
 def searchAllPage():
-    languages = []
     if request.method == 'POST':
         inputs = request.form
-        try:
-            languages = request.form.getlist('languages')
-        except Exception as e:
-            logging.exception(e)
-            pass
     if request.method == 'GET':
         inputs = request.args
-        try:
-            languages = request.args.getlist('languages')
-        except Exception as e:
-            logging.exception(e)
-            pass
     logging.debug("/search with inputs:\n{0}".format(json.dumps(inputs)))
     session["inputs"] = inputs
     myargs = {}
@@ -265,10 +235,6 @@ def searchAllPage():
     for key, value in myargs.items():
         if len(value) == 0 or str(value).strip() == '':
             myargs[key] = None
-
-    if len(languages) > 0 and myargs['keywords'] is not None:
-        translated_terms = get_translations(myargs['keywords'], languages)
-        myargs['translated_terms'] = translated_terms
 
     results = searchAll(**myargs)
     return render_template("search.html", results=results,
